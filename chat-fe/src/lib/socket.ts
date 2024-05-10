@@ -2,7 +2,7 @@
 // you uncomment its entry in "assets/js/app.js".
 
 // Bring in Phoenix channels client library:
-import { Socket } from "phoenix"
+import { Socket, Channel } from "phoenix"
 import { Pinia } from "pinia";
 
 // And connect to the path in "lib/chat_socket_server_web/endpoint.ex". We pass the
@@ -84,9 +84,25 @@ class NetClient {
         this.connected = true;
     }
 
-    public disconnect(){
+    public disconnect() {
         this.connected = false;
         this._socket.disconnect();
+    }
+
+    public getSocket() {
+        return this._socket;
+    }
+
+    // @ts-ignore
+    public joinLobby(): Channel {
+        const lobby_channel = this._socket.channel("lobby", {})
+        const temp = lobby_channel.join();
+        console.log(lobby_channel, temp);
+        temp
+            .receive("ok", resp => { console.log("Joined successfully", resp) })
+            .receive("error", resp => { console.log("Unable to join", resp) });
+
+        return lobby_channel;
     }
 }
 

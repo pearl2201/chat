@@ -8,6 +8,8 @@ defmodule ChatSocketServer.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      {ChatSocketServer.UserIdCounter,0 },
+      ChatSocketServer.RoomRegistry,
       # Start the Telemetry supervisor
       ChatSocketServerWeb.Telemetry,
       # Start the Ecto repository
