@@ -79,25 +79,31 @@ export default {
         },
       ],
       load: false,
-      rooms: []
+      rooms: [],
+      lobbyChannel: null
     }
   },
   methods: {
     onSubmitUsername() {
       this.status = 1;
       this.$netClient.connect(this.username);
-      var lobbyChannel = this.$netClient.joinLobby();
-      lobbyChannel.on("update_roomlist", (payload) => {
-        console.log(payload)
+      this.lobbyChannel = this.$netClient.joinLobby();
+      this.lobbyChannel.on("add_roomlist", (payload) => {
+        console.log("add_roomlist: ", payload)
+        this.rooms.push(payload)
       })
 
-      lobbyChannel.push("get_roomlist")
+      this.lobbyChannel.push("get_roomlist")
         .receive("ok", payload => console.log("phoenix replied:", payload))
         .receive("error", err => console.log("phoenix errored", err))
         .receive("timeout", () => console.log("timed out pushing"))
     },
     createRoom() {
-
+      this.createRoomDialog = false;
+      this.lobbyChannel.push("create_room", { "room_name": this.createRoomItem.name })
+        .receive("ok", payload => console.log("phoenix replied:", payload))
+        .receive("error", err => console.log("phoenix errored", err))
+        .receive("timeout", () => console.log("timed out pushing"))
     }
 
   }

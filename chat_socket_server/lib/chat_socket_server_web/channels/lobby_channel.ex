@@ -24,6 +24,23 @@ defmodule ChatSocketServerWeb.LobbyChannel do
     {:reply, {:ok, payload}, socket}
   end
 
+  @impl true
+  def handle_in("create_room", %{"room_name" => room_name}, socket) do
+    room_id = ChatSocketServer.UserIdCounter.increment()
+    child_spec = {ChatSocketServer.RoomServer, {room_id, room_name}}
+
+    gen_server =
+      case DynamicSupervisor.start_child(ChatSocketServer.DynamicSupervisor, child_spec) do
+        {:ok, pid} -> pid
+        {:error, {:already_started, pid}} -> pid
+        error -> raise error
+      end
+
+    ChatSocketServer.RoomRegistry.add_server(gen_server)
+    push(socket, "add_roomlist", %{"room_id" => room_id, "room_name" => room_name})
+    {:reply, {:ok, %{room_id => room_id, "room_name" => room_name}}, socket}
+  end
+
   # It is also common to receive messages from the client and
   # broadcast to everyone in the current topic (room:lobby).
   @impl true

@@ -14,10 +14,14 @@ defmodule ChatSocketServer.RoomRegistry do
   end
 
   def add_server(server) do
-    Agent.update(__MODULE__, fn state -> [state | server] end)
+    Agent.update(__MODULE__, fn [elem] -> [elem | server] end)
   end
 
   def room_list do
-    Agent.get(__MODULE__, & &1)
+    Agent.get(__MODULE__, fn state ->
+      Enum.map(state, fn x ->
+        IO.inspect(x)
+        ChatSocketServer.RoomServer.get_room_info(x) end)
+    end)
   end
 end

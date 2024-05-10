@@ -19,7 +19,8 @@ defmodule ChatSocketServer.Application do
       # Start Finch
       {Finch, name: ChatSocketServer.Finch},
       # Start the Endpoint (http/https)
-      ChatSocketServerWeb.Endpoint
+      ChatSocketServerWeb.Endpoint,
+      {DynamicSupervisor, strategy: :one_for_one, name: ChatSocketServer.DynamicSupervisor}
       # Start a worker by calling: ChatSocketServer.Worker.start_link(arg)
       # {ChatSocketServer.Worker, arg}
     ]
