@@ -6,7 +6,7 @@ defmodule UserIdCounter do
   end
 
   def value do
-    Aget.get(__MODULE__, & &1)
+    Agent.get(__MODULE__, & &1)
   end
 
   def increment do

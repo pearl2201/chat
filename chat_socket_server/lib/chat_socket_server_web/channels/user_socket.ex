@@ -22,7 +22,6 @@ defmodule ChatSocketServerWeb.UserSocket do
   # See the [`Channels guide`](https://hexdocs.pm/phoenix/channels.html)
   # for further details.
 
-
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
   # verification, you can put default assigns into
@@ -38,7 +37,7 @@ defmodule ChatSocketServerWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   @impl true
-  def connect(params, socket, connect_info) do
+  def connect(params, socket, _connect_info) do
     id = ChatSocketServer.UserIdCounter.increment()
     {:ok, socket |> assign(:user_id, id) |> assign(:username, params["token"])}
   end
@@ -55,4 +54,6 @@ defmodule ChatSocketServerWeb.UserSocket do
   # Returning `nil` makes this socket anonymous.
   @impl true
   def id(socket), do: "user_socket:#{socket.assigns.user_id}"
+
+
 end

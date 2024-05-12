@@ -104,7 +104,19 @@ class NetClient {
 
         return lobby_channel;
     }
+
+    public joinRoom(room_id: number): Channel {
+        const lobby_channel = this._socket.channel(`room:${room_id}`, {})
+        const temp = lobby_channel.join();
+        console.log(lobby_channel, temp);
+        temp
+            .receive("ok", resp => { console.log("Joined successfully", resp) })
+            .receive("error", resp => { console.log("Unable to join", resp) });
+
+        return lobby_channel;
+    }
 }
+
 
 
 export default NetClient;

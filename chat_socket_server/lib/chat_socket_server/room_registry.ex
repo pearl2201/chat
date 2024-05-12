@@ -7,14 +7,20 @@ defmodule ChatSocketServer.RoomRegistry do
 
   def get_server(server_id) do
     Agent.get(__MODULE__, fn state ->
-      Enum.find(state, fn x ->
-        ChatSocketServer.RoomServer.get_room_id(x)
+      IO.inspect(state)
+      IO.inspect(server_id)
+      temp = Enum.find(state, fn x ->
+        t = ChatSocketServer.RoomServer.get_room_id(x)
+        IO.inspect(t)
+        t
       end) == server_id
+      IO.inspect(temp)
+      temp
     end)
   end
 
   def add_server(server) do
-    Agent.update(__MODULE__, fn [elem] -> [elem | server] end)
+    Agent.update(__MODULE__, fn state -> state ++ [server] end)
   end
 
   def room_list do

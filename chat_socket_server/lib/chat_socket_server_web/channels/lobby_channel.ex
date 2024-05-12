@@ -26,8 +26,12 @@ defmodule ChatSocketServerWeb.LobbyChannel do
 
   @impl true
   def handle_in("create_room", %{"room_name" => room_name}, socket) do
+    IO.inspect(socket)
     room_id = ChatSocketServer.UserIdCounter.increment()
-    child_spec = {ChatSocketServer.RoomServer, {room_id, room_name}}
+
+    child_spec =
+      {ChatSocketServer.RoomServer,
+       {room_id, room_name, socket.assigns.user_id, socket.assigns.username}}
 
     gen_server =
       case DynamicSupervisor.start_child(ChatSocketServer.DynamicSupervisor, child_spec) do
@@ -37,8 +41,8 @@ defmodule ChatSocketServerWeb.LobbyChannel do
       end
 
     ChatSocketServer.RoomRegistry.add_server(gen_server)
-    push(socket, "add_roomlist", %{"room_id" => room_id, "room_name" => room_name})
-    {:reply, {:ok, %{room_id => room_id, "room_name" => room_name}}, socket}
+    broadcast(socket, "add_roomlist", %{"room_id" => room_id, "room_name" => room_name})
+    {:reply, {:ok, %{"room_id" => room_id, "room_name" => room_name}}, socket}
   end
 
   # It is also common to receive messages from the client and
