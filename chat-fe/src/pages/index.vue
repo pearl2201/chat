@@ -46,7 +46,7 @@
           <v-divider></v-divider>
 
           <v-card-text class="text-medium-emphasis pa-0">
-            <v-virtual-scroll :items="rooms" active-color="blue">
+            <v-virtual-scroll :items="rooms" active-color="blue" class="room-list">
               <template v-slot:default="{ item }">
                 <v-list-item class="border-t" height="60" :class="{
     'active-room-item': item.room_id == this.currentRoomId,
@@ -274,5 +274,9 @@ export default {
 
 .messages {
   height: calc(100vh - 260px);
+}
+
+.room-list{
+  height: calc(100vh - 140px);
 }
 </style>
