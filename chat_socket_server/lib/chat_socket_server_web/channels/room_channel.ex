@@ -58,14 +58,6 @@ defmodule ChatSocketServerWeb.RoomChannel do
   end
 
   @impl true
-  def handle_in(evt, payload, socket) do
-    IO.inspect(evt)
-    IO.inspect(payload)
-
-    {:reply, {:ok, payload}, socket}
-  end
-
-  @impl true
   def handle_info(:after_join, socket) do
     server = ChatSocketServer.RoomRegistry.get_server(socket.assigns.room_id)
 
@@ -93,7 +85,6 @@ defmodule ChatSocketServerWeb.RoomChannel do
         %{topic: topic, serializer: serializer, transport_pid: transport_pid, assigns: assigns} =
           socket
       ) do
-    IO.puts("on leave")
     send(transport_pid, serializer.encode!(build_leave_reply(message)))
 
     if Map.has_key?(assigns, :room_id) do
@@ -109,13 +100,10 @@ defmodule ChatSocketServerWeb.RoomChannel do
   end
 
   def handle_info(%{topic: "user:0", payload: state}, socket) do
-    IO.puts("HANDLE BROADCAST FOR #{state[:status]}")
     {:noreply, assign(socket, state)}
   end
 
   def handle_info(evt, socket) do
-    IO.inspect("handle_info")
-    IO.inspect(evt)
     {:noreply, socket}
   end
 
@@ -127,16 +115,4 @@ defmodule ChatSocketServerWeb.RoomChannel do
   defp authorized?(_payload) do
     true
   end
-
-  # @impl true
-  # def handle_out("user_join", payload, socket) do
-  #   IO.inspect(payload)
-  #   IO.inspect(socket)
-
-  #   if socket.assigns.user_id != payload.user_id do
-  #     push(socket, "user_join", payload)
-  #   end
-
-  #   {:noreply, socket}
-  # end
 end

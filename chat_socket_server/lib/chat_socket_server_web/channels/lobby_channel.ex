@@ -56,15 +56,4 @@ defmodule ChatSocketServerWeb.LobbyChannel do
   defp authorized?(_payload) do
     true
   end
-
-  @impl true
-  def handle_info(
-        %{topic: topic, event: "phx_leave"} = message,
-        %{topic: topic, serializer: serializer, transport_pid: transport_pid, assigns: assigns} =
-          socket
-      ) do
-    IO.puts("on leave")
-
-    {:stop, {:shutdown, :left}, socket}
-  end
 end

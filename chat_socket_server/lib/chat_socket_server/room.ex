@@ -117,7 +117,6 @@ defmodule ChatSocketServer.RoomServer do
           ]
       )
 
-    IO.inspect(state)
     {:noreply, state}
   end
 
