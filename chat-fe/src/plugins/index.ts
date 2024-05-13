@@ -18,7 +18,7 @@ export function registerPlugins (app: App) {
   app
   .use(pinia)
     .use(channel, {
-      url: 'ws://localhost:4000/socket',
+      url: import.meta.env.VITE_URL,
       store: pinia
     })
     .use(vuetify)
