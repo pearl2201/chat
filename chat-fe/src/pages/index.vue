@@ -66,7 +66,7 @@
 
               <v-card-text class="text-medium-emphasis pa-0">
                 <v-list-item class="px-6">
-                  <template v-slot:title> Members </template>
+                  <template v-slot:title> Messages </template>
                 </v-list-item>
 
                 <v-divider></v-divider>
@@ -89,7 +89,7 @@
 
             <v-card class="mx-auto h-100" border flat>
               <v-list-item class="px-6">
-                <template v-slot:title> Messages </template>
+                <template v-slot:title> Members </template>
               </v-list-item>
 
               <v-divider></v-divider>
