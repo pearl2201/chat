@@ -42,7 +42,8 @@ defmodule ChatSocketServerWeb.UserSocket do
     token = params["token"]
     :ok = PubSub.subscribe(ChatSocketServer.PubSub, "user:#{id}")
     IO.puts("subscribe to user:#{id}")
-    {:ok, socket |> assign(:user_id, id) |> assign(:username, token)}
+    socket = socket |> assign(:user_id, id) |> assign(:username, token)
+    {:ok, socket}
   end
 
   # Socket IDs are topics that allow you to identify all sockets for a given user:

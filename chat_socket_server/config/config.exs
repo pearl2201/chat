@@ -18,7 +18,8 @@ config :chat_socket_server, ChatSocketServerWeb.Endpoint,
     layout: false
   ],
   pubsub_server: ChatSocketServer.PubSub,
-  live_view: [signing_salt: "gEJIl/lo"]
+  live_view: [signing_salt: "gEJIl/lo"],
+  server: true
 
 # Configures the mailer
 #
