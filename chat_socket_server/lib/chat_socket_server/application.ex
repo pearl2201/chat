@@ -15,7 +15,8 @@ defmodule ChatSocketServer.Application do
       # Start the Ecto repository
       ChatSocketServer.Repo,
       # Start the PubSub system
-      {Phoenix.PubSub, name: ChatSocketServer.PubSub},
+      {Phoenix.PubSub, [name: ChatSocketServer.PubSub,adapter: Phoenix.PubSub.PG2]},
+      ChatSocketServerWeb.Presence,
       # Start Finch
       {Finch, name: ChatSocketServer.Finch},
       # Start the Endpoint (http/https)

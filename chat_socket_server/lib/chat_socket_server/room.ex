@@ -1,5 +1,6 @@
 defmodule ChatSocketServer.RoomServer do
   use GenServer
+  alias Phoenix.PubSub
 
   def start_link({room_id, room_name, creator_id, creator_username}) do
     GenServer.start_link(__MODULE__, {room_id, room_name, creator_id, creator_username},
@@ -11,11 +12,15 @@ defmodule ChatSocketServer.RoomServer do
 
   @impl true
   def init({room_id, room_name, creator_id, creator_username}) do
+    PubSub.subscribe(ChatSocketServer.PubSub, "user_leave")
+
     {:ok,
      %{
        room_id: room_id,
        room_name: room_name,
-       members: [%{user_id: creator_id, username: creator_username}],
+       creator_id: creator_id,
+       creator_username: creator_username,
+       members: [],
        messages: []
      }}
   end
@@ -25,25 +30,23 @@ defmodule ChatSocketServer.RoomServer do
   end
 
   def get_room_info(pid) do
-    IO.puts("call get room info")
     GenServer.call(pid, :get_room_info)
   end
 
   def get_room_detail(pid) do
-    IO.puts("call get room info")
     GenServer.call(pid, :get_room_detail)
   end
 
   def join_room(pid, member_id, member_username) do
-    GenServer.call(pid, {:join_room, member_id, member_username})
+    GenServer.cast(pid, {:join_room, member_id, member_username})
   end
 
   def exit_room(pid, member_id) do
     GenServer.cast(pid, {:exit_room, member_id})
   end
 
-  def send_message(pid, member_id, member_username,created_at, message_content) do
-    GenServer.cast(pid, {:add_message, member_id, member_username, created_at,message_content})
+  def send_message(pid, member_id, member_username, created_at, message_content) do
+    GenServer.cast(pid, {:add_message, member_id, member_username, created_at, message_content})
   end
 
   @impl true
@@ -53,23 +56,16 @@ defmodule ChatSocketServer.RoomServer do
 
   @impl true
   def handle_call(:get_room_info, _from, state) do
-    IO.puts("handle_call")
-    IO.inspect(state)
-
     ret = %{
       room_id: state.room_id,
       room_name: state.room_name
     }
 
-    IO.inspect(ret)
     {:reply, ret, state}
   end
 
   @impl true
   def handle_call(:get_room_detail, _from, state) do
-    IO.puts("handle_call")
-    IO.inspect(state)
-
     ret = %{
       room_id: state.room_id,
       room_name: state.room_name,
@@ -77,7 +73,6 @@ defmodule ChatSocketServer.RoomServer do
       messages: state.messages
     }
 
-    IO.inspect(ret)
     {:reply, ret, state}
   end
 
@@ -86,23 +81,27 @@ defmodule ChatSocketServer.RoomServer do
     state =
       Map.put(state, :members, Enum.filter(state.members, fn x -> x.user_id != member_id end))
 
-    {:reply, state}
+    {:noreply, state}
   end
 
   @impl true
   def handle_cast({:join_room, member_id, member_username}, state) do
     state =
-      Map.put(
-        state,
-        :members,
-        state.members ++ [%{user_id: member_id, username: member_username}]
-      )
+      if Enum.all?(state.members, fn x -> x.user_id != member_id end) do
+        Map.put(
+          state,
+          :members,
+          state.members ++ [%{user_id: member_id, username: member_username}]
+        )
+      else
+        state
+      end
 
-    {:reply, state}
+    {:noreply, state}
   end
 
   @impl true
-  def handle_cast({:add_message, member_id, member_username, created_at,message_content}, state) do
+  def handle_cast({:add_message, member_id, member_username, created_at, message_content}, state) do
     state =
       Map.put(
         state,
@@ -118,6 +117,14 @@ defmodule ChatSocketServer.RoomServer do
           ]
       )
 
+    IO.inspect(state)
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info({_channel, pid, {:leave, presence}}, state) do
+    {user_id, _} = Integer.parse(presence.user_id)
+    GenServer.cast(pid, {:exit_room, user_id})
     {:noreply, state}
   end
 end

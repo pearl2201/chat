@@ -1,6 +1,6 @@
 defmodule ChatSocketServerWeb.UserSocket do
   use Phoenix.Socket
-
+  alias Phoenix.PubSub
   channel "room:*", ChatSocketServerWeb.RoomChannel
 
   channel "lobby", ChatSocketServerWeb.LobbyChannel
@@ -39,7 +39,10 @@ defmodule ChatSocketServerWeb.UserSocket do
   @impl true
   def connect(params, socket, _connect_info) do
     id = ChatSocketServer.UserIdCounter.increment()
-    {:ok, socket |> assign(:user_id, id) |> assign(:username, params["token"])}
+    token = params["token"]
+    :ok = PubSub.subscribe(ChatSocketServer.PubSub, "user:#{id}")
+    IO.puts("subscribe to user:#{id}")
+    {:ok, socket |> assign(:user_id, id) |> assign(:username, token)}
   end
 
   # Socket IDs are topics that allow you to identify all sockets for a given user:
@@ -54,6 +57,4 @@ defmodule ChatSocketServerWeb.UserSocket do
   # Returning `nil` makes this socket anonymous.
   @impl true
   def id(socket), do: "user_socket:#{socket.assigns.user_id}"
-
-
 end

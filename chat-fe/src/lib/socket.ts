@@ -73,6 +73,7 @@ class NetClient {
     public connected: boolean;
 
     private _channelDict: Dictionary<Dictionary<any>>;
+    public user_id: number;
     constructor(url: string, store: Pinia) {
         this._socket = new Socket(url);
         console.log(store);
@@ -99,7 +100,9 @@ class NetClient {
         const temp = lobby_channel.join();
         console.log(lobby_channel, temp);
         temp
-            .receive("ok", resp => { console.log("Joined successfully", resp) })
+            .receive("ok", resp => { console.log("Joined successfully", resp);
+                this.user_id = resp.user_id
+             })
             .receive("error", resp => { console.log("Unable to join", resp) });
 
         return lobby_channel;
